@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Bell, LogOut } from "lucide-react";
+import { Bell, LogOut, ExternalLink } from "lucide-react";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 
@@ -21,6 +21,7 @@ export default function Dashboard() {
     const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState("All");
     const [currentPage, setCurrentPage] = useState(1);
+    const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
     const itemsPerPage = 5;
 
     const exportToExcel = () => {
@@ -103,6 +104,10 @@ export default function Dashboard() {
         window.location.reload();
     };
 
+    const openPublicWebsite = () => {
+        window.open("/#public", "_blank");
+    };
+
     const fetchAppointments = async () => {
         try {
             const res = await fetch("http://localhost:9000/api/appointments");
@@ -130,9 +135,35 @@ export default function Dashboard() {
         );
     }
 
+    const getDaysInMonth = (year: number, month: number) => {
+        return new Date(year, month + 1, 0).getDate();
+    };
+
+    const getFirstDayOfMonth = (year: number, month: number) => {
+        return new Date(year, month, 1).getDay();
+    };
+
+    const monthNames = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+
     const appointmentsForDate = appointments.filter(
         (a) => a.date === selectedDate,
     );
+
+    const updateStatus = async (id: number, status: string) => {
+        try {
+            await fetch(`http://localhost:9000/api/appointments/${id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status }),
+            });
+            fetchAppointments();
+        } catch (err) {
+            console.log("Update error", err);
+        }
+    };
 
     return (
         <>
@@ -159,6 +190,15 @@ export default function Dashboard() {
 
                         <button onClick={handleLogout}>
                             <LogOut className="w-5" />
+                        </button>
+
+                        <button
+                            onClick={openPublicWebsite}
+                            className="flex items-center gap-1 px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+                            title="View Public Website"
+                        >
+                            <ExternalLink className="w-4" />
+                            <span>View Website</span>
                         </button>
                     </div>
                 </div>
@@ -361,42 +401,68 @@ export default function Dashboard() {
                         />
                     </div>
                     {/* Calendar */}
-                    <div className="col-span-3 grid grid-cols-7 gap-2 text-center text-sm">
-                        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(
-                            (day) => (
-                                <div
-                                    key={day}
-                                    className="font-semibold text-gray-500"
+                    <div className="col-span-3">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-lg font-semibold">{currentYear} Calendar</h3>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => setCurrentYear(prev => prev - 1)}
+                                    className="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded"
                                 >
-                                    {day}
-                                </div>
-                            ),
-                        )}
-
-                        {Array.from({ length: 30 }).map((_, i) => {
-                            const day = i + 1;
-                            const dateStr = `2026-04-${String(day).padStart(2, "0")}`;
-
-                            const hasAppointment = appointments.some(
-                                (a) => a.date === dateStr,
-                            );
-
-                            return (
-                                <div
-                                    key={i}
-                                    onClick={() => {
-                                        setSelectedDate(dateStr);
-                                        setShowModal(true);
-                                    }}
-                                    className={`p-3 rounded cursor-pointer
-                  ${hasAppointment ? "bg-green-400 text-white" : "bg-gray-100 dark:bg-gray-700"}
-                  ${selectedDate === dateStr ? "ring-2 ring-blue-500" : ""}
-                  `}
+                                    Previous Year
+                                </button>
+                                <button
+                                    onClick={() => setCurrentYear(prev => prev + 1)}
+                                    className="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded"
                                 >
-                                    {day}
-                                </div>
-                            );
-                        })}
+                                    Next Year
+                                </button>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                            {monthNames.map((monthName, monthIndex) => {
+                                const daysInMonth = getDaysInMonth(currentYear, monthIndex);
+                                const firstDay = getFirstDayOfMonth(currentYear, monthIndex);
+                                const days = [];
+
+                                for (let i = 0; i < firstDay; i++) {
+                                    days.push(<div key={`empty-${i}`} className="p-2"></div>);
+                                }
+
+                                for (let day = 1; day <= daysInMonth; day++) {
+                                    const dateStr = `${currentYear}-${String(monthIndex + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+                                    const hasAppointment = appointments.some((a) => a.date === dateStr);
+
+                                    days.push(
+                                        <div
+                                            key={day}
+                                            onClick={() => {
+                                                setSelectedDate(dateStr);
+                                                setShowModal(true);
+                                            }}
+                                            className={`p-2 rounded cursor-pointer text-center
+                                                ${hasAppointment ? "bg-green-400 text-white" : "bg-gray-100 dark:bg-gray-700"}
+                                                ${selectedDate === dateStr ? "ring-2 ring-blue-500" : ""}
+                                            `}
+                                        >
+                                            {day}
+                                        </div>
+                                    );
+                                }
+
+                                return (
+                                    <div key={monthIndex} className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow">
+                                        <h4 className="font-semibold mb-2 text-center">{monthName}</h4>
+                                        <div className="grid grid-cols-7 gap-1 text-center text-xs">
+                                            {["S","M","T","W","T","F","S"].map((d, i) => (
+                                                <div key={i} className="font-semibold text-gray-500">{d}</div>
+                                            ))}
+                                            {days}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
                     </div>
                 </div>
             </div>
