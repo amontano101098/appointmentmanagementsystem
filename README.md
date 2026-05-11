@@ -145,4 +145,4 @@ This project is licensed under the MIT License.
 
 # 👩‍💻 Developer
 
-Developed by Angelica Montaño
+Developed by Angelica Montaño and Shami and her team from Africa
