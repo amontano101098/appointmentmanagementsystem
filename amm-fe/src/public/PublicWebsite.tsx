@@ -51,9 +51,7 @@ export default function PublicWebsite() {
     return (
         <div className="min-h-screen flex flex-col">
             <Header currentPage={currentPage} onNavigate={handleNavigate} />
-            <main className="flex-1">
-                {renderPage()}
-            </main>
+            <main className="flex-1">{renderPage()}</main>
             <Footer />
         </div>
     );
