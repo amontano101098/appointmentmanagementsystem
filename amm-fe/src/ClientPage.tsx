@@ -13,7 +13,7 @@ export default function Dashboard() {
         : appointments;
 
     useEffect(() => {
-        fetch("http://localhost:9000/api/appointments")
+        fetch("/api/appointments")
             .then((res) => res.json())
             .then((data) => setAppointments(data))
             .catch(() => console.log("Error fetching appointments"));
@@ -52,7 +52,7 @@ export default function Dashboard() {
     const updateStatus = async (id: number, status: string) => {
         try {
             const res = await fetch(
-                `http://localhost:9000/api/appointments/${id}`,
+                `/api/appointments/${id}`,
                 {
                     method: "PUT",
                     headers: {

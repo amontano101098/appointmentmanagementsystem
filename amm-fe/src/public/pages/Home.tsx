@@ -40,8 +40,14 @@ export default function Home({ onNavigate }: HomeProps) {
                         </p>
                         <div className="flex justify-center gap-4">
                             <button
-                                onClick={() => onNavigate?.("appointments")}
+                                onClick={() => onNavigate?.("book")}
                                 className="px-6 py-3 bg-white text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition-colors"
+                            >
+                                Book Now
+                            </button>
+                            <button
+                                onClick={() => onNavigate?.("appointments")}
+                                className="px-6 py-3 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-400 transition-colors"
                             >
                                 View Appointments
                             </button>

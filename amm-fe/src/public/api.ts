@@ -1,6 +1,6 @@
-import type { Appointment, AppointmentStats } from "./types";
+import type { Appointment, AppointmentStats, Booking } from "./types";
 
-const API_BASE = "http://localhost:9000/api";
+const API_BASE = "/api";
 
 export async function fetchAppointments(): Promise<Appointment[]> {
     const res = await fetch(`${API_BASE}/appointments`);
@@ -39,5 +39,42 @@ export async function createAppointment(data: { name: string; email: string; dat
         body: JSON.stringify(data),
     });
     if (!res.ok) throw new Error("Failed to create appointment");
+    return res.json();
+}
+
+export async function fetchBookings(): Promise<Booking[]> {
+    const res = await fetch(`${API_BASE}/bookings`);
+    if (!res.ok) throw new Error("Failed to fetch bookings");
+    return res.json();
+}
+
+export async function createBooking(data: { name: string; email: string; check_in: string; check_out: string; room: string }) {
+    const res = await fetch(`${API_BASE}/bookings`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.message || "Failed to create booking");
+    }
+    return res.json();
+}
+
+export async function updateBooking(id: number, data: { status: string }) {
+    const res = await fetch(`${API_BASE}/bookings/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error("Failed to update booking");
+    return res.json();
+}
+
+export async function deleteBooking(id: number) {
+    const res = await fetch(`${API_BASE}/bookings/${id}`, {
+        method: "DELETE",
+    });
+    if (!res.ok) throw new Error("Failed to delete booking");
     return res.json();
 }

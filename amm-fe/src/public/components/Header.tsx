@@ -1,4 +1,4 @@
-import { Calendar, Home, List } from "lucide-react";
+import { Calendar, Home, List, BedDouble, CalendarDays } from "lucide-react";
 
 interface HeaderProps {
     onNavigate?: (page: string) => void;
@@ -29,6 +29,17 @@ export default function Header({ currentPage, onNavigate }: HeaderProps) {
                                 Home
                             </button>
                             <button
+                                onClick={() => onNavigate?.("book")}
+                                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
+                                    isActive("book")
+                                        ? "bg-blue-50 text-blue-600"
+                                        : "text-gray-600 hover:bg-gray-50"
+                                }`}
+                            >
+                                <BedDouble className="w-4 h-4" />
+                                Book Now
+                            </button>
+                            <button
                                 onClick={() => onNavigate?.("appointments")}
                                 className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
                                     isActive("appointments")
@@ -53,12 +64,23 @@ export default function Header({ currentPage, onNavigate }: HeaderProps) {
                         </nav>
                     </div>
                     <div className="flex items-center gap-4">
-                        <button
-                            onClick={() => window.location.reload()}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                        >
-                            Admin Login
-                        </button>
+<button
+                                onClick={() => onNavigate?.("adminCalendar")}
+                                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
+                                    isActive("adminCalendar")
+                                        ? "bg-blue-50 text-blue-600"
+                                        : "text-gray-600 hover:bg-gray-50"
+                                }`}
+                            >
+                                <CalendarDays className="w-4 h-4" />
+                                Admin Calendar
+                            </button>
+                            <button
+                                onClick={() => window.location.reload()}
+                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                            >
+                                Admin Login
+                            </button>
                     </div>
                 </div>
             </div>

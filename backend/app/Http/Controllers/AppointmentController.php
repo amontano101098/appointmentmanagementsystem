@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Appointment;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\AppointmentBooked;
+use App\Mail\AppointmentCancelled;
 
 class AppointmentController extends Controller
 {
@@ -44,6 +45,18 @@ class AppointmentController extends Controller
         $appointment->status = $request->status;
         $appointment->save();
 
+        if ($request->status === 'Cancelled') {
+            Mail::to($appointment->email)->send(new AppointmentCancelled($appointment));
+        }
+
         return response()->json($appointment);
+    }
+
+    public function destroy($id)
+    {
+        $appointment = Appointment::findOrFail($id);
+        $appointment->delete();
+
+        return response()->json(null, 204);
     }
 }

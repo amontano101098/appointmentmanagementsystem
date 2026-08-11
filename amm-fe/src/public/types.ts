@@ -7,6 +7,16 @@ export interface Appointment {
     status: string;
 }
 
+export interface Booking {
+    id: number;
+    name: string;
+    email: string;
+    check_in: string;
+    check_out: string;
+    room: string;
+    status: string;
+}
+
 export interface AppointmentStats {
     total: number;
     pending: number;

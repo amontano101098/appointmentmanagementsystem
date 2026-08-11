@@ -5,7 +5,7 @@ import Dashboard from "./Dashboard";
 import PublicWebsite from "./public/PublicWebsite";
 
 export default function App() {
-    const [page, setPage] = useState<"login" | "register" | "public" | "home" | "appointments" | "calendar">("login");
+    const [page, setPage] = useState<"login" | "register" | "public" | "home" | "appointments" | "calendar" | "rooms" | "about" | "contact" | "adminLogin" | "adminCalendar">("login");
     const [token, setToken] = useState<string | null>(null);
 
     useEffect(() => {
@@ -15,12 +15,12 @@ export default function App() {
         }
 
         const hash = window.location.hash.slice(1);
-        if (hash === "public" || hash === "home" || hash === "appointments" || hash === "calendar") {
+        if (hash === "public" || hash === "home" || hash === "appointments" || hash === "calendar" || hash === "rooms" || hash === "about" || hash === "contact" || hash === "adminLogin" || hash === "adminCalendar") {
             setPage(hash);
         }
     }, []);
 
-    if (page === "public" || page === "home" || page === "appointments" || page === "calendar") {
+    if (page === "public" || page === "home" || page === "appointments" || page === "calendar" || page === "rooms" || page === "about" || page === "contact" || page === "adminLogin" || page === "adminCalendar") {
         return <PublicWebsite />;
     }
 

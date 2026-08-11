@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import type { Appointment, DayInfo } from "../types";
-import { fetchAppointments } from "../api";
+import type { Appointment, Booking, DayInfo } from "../types";
+import { fetchAppointments, fetchBookings } from "../api";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const monthNames = [
@@ -10,6 +10,7 @@ const monthNames = [
 
 export default function PublicCalendar() {
     const [appointments, setAppointments] = useState<Appointment[]>([]);
+    const [bookings, setBookings] = useState<Booking[]>([]);
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
     const [selectedDay, setSelectedDay] = useState<DayInfo | null>(null);
     const [loading, setLoading] = useState(true);
@@ -19,6 +20,12 @@ export default function PublicCalendar() {
             .then(setAppointments)
             .catch(() => console.log("Error fetching appointments"))
             .finally(() => setLoading(false));
+    }, []);
+
+    useEffect(() => {
+        fetchBookings()
+            .then(setBookings)
+            .catch(() => console.log("Error fetching bookings"));
     }, []);
 
     const getDaysInMonth = (year: number, month: number) => {
@@ -33,34 +40,38 @@ export default function PublicCalendar() {
         return appointments.filter((a) => a.date === dateStr && a.status === "Approved");
     };
 
+    const hasApprovedBooking = (dateStr: string) => {
+        return bookings.some((b) => b.status === "Approved" && b.check_in <= dateStr && b.check_out >= dateStr);
+    };
+
     const handlePrevYear = () => setCurrentYear(prev => prev - 1);
     const handleNextYear = () => setCurrentYear(prev => prev + 1);
 
     if (loading) {
         return (
             <div className="flex items-center justify-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#d4af37]"></div>
             </div>
         );
     }
 
     return (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div className="bg-[#1e293b] rounded-xl shadow-sm border border-[#334155] p-6">
             <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-gray-900">Appointment Calendar</h2>
+                <h2 className="text-xl font-semibold text-[#f8fafc]">Appointment Calendar</h2>
                 <div className="flex items-center gap-2">
                     <button
                         onClick={handlePrevYear}
-                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                        className="p-2 hover:bg-[#0f172a] rounded-lg transition-colors"
                     >
-                        <ChevronLeft className="w-5 h-5" />
+                        <ChevronLeft className="w-5 h-5 text-[#94a3b8]" />
                     </button>
-                    <span className="text-lg font-semibold min-w-[120px] text-center">{currentYear}</span>
+                    <span className="text-lg font-semibold min-w-[120px] text-center text-[#f8fafc]">{currentYear}</span>
                     <button
                         onClick={handleNextYear}
-                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                        className="p-2 hover:bg-[#0f172a] rounded-lg transition-colors"
                     >
-                        <ChevronRight className="w-5 h-5" />
+                        <ChevronRight className="w-5 h-5 text-[#94a3b8]" />
                     </button>
                 </div>
             </div>
@@ -78,7 +89,8 @@ export default function PublicCalendar() {
                     for (let day = 1; day <= daysInMonth; day++) {
                         const dateStr = `${currentYear}-${String(monthIndex + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
                         const dayAppointments = getAppointmentsForDate(dateStr);
-                        const hasAppointments = dayAppointments.length > 0;
+                        const hasBookingOnDay = hasApprovedBooking(dateStr);
+                        const hasAppointments = dayAppointments.length > 0 || hasBookingOnDay;
 
                         days.push(
                             <button
@@ -91,10 +103,10 @@ export default function PublicCalendar() {
                                 })}
                                 className={`p-2 rounded-lg text-center text-sm transition-all
                                     ${hasAppointments 
-                                        ? "bg-green-100 text-green-800 font-medium hover:bg-green-200" 
-                                        : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+                                        ? "bg-green-900/30 text-green-300 font-medium hover:bg-green-900/50" 
+                                        : "bg-[#0f172a] text-[#94a3b8] hover:bg-[#1e293b]"
                                     }
-                                    ${selectedDay?.date === dateStr ? "ring-2 ring-blue-500" : ""}
+                                    ${selectedDay?.date === dateStr ? "ring-2 ring-[#d4af37]" : ""}
                                 `}
                             >
                                 {day}
@@ -103,11 +115,11 @@ export default function PublicCalendar() {
                     }
 
                     return (
-                        <div key={monthIndex} className="border border-gray-200 rounded-lg p-4">
-                            <h4 className="font-semibold mb-3 text-center text-gray-800">{monthName}</h4>
+                        <div key={monthIndex} className="border border-[#334155] rounded-lg p-4">
+                            <h4 className="font-semibold mb-3 text-center text-[#f8fafc]">{monthName}</h4>
                             <div className="grid grid-cols-7 gap-1 text-center text-xs">
                                 {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
-                                    <div key={i} className="font-medium text-gray-400">{d}</div>
+                                    <div key={i} className="font-medium text-[#64748b]">{d}</div>
                                 ))}
                                 {days}
                             </div>
@@ -117,26 +129,26 @@ export default function PublicCalendar() {
             </div>
 
             {selectedDay && (
-                <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                <div className="mt-6 p-4 bg-[#0f172a] rounded-lg">
                     <div className="flex justify-between items-center mb-3">
-                        <h3 className="font-semibold text-gray-900">
+                        <h3 className="font-semibold text-[#f8fafc]">
                             {selectedDay.date} {selectedDay.hasAppointments && `(${selectedDay.appointments.length} appointments)`}
                         </h3>
                         <button
                             onClick={() => setSelectedDay(null)}
-                            className="text-gray-500 hover:text-gray-700"
+                            className="text-[#94a3b8] hover:text-[#d4af37]"
                         >
                             ✕
                         </button>
                     </div>
                     {!selectedDay.hasAppointments ? (
-                        <p className="text-gray-500">No appointments on this date</p>
+                        <p className="text-[#94a3b8]">No appointments on this date</p>
                     ) : (
                         <div className="space-y-2">
                             {selectedDay.appointments.map((a) => (
-                                <div key={a.id} className="bg-white p-3 rounded-lg border border-gray-200">
-                                    <p className="font-medium text-gray-900">{a.name}</p>
-                                    <p className="text-sm text-gray-500">{a.time}</p>
+                                <div key={a.id} className="bg-[#1e293b] p-3 rounded-lg border border-[#334155]">
+                                    <p className="font-medium text-[#f8fafc]">{a.name}</p>
+                                    <p className="text-sm text-[#94a3b8]">{a.time}</p>
                                 </div>
                             ))}
                         </div>
