@@ -38,16 +38,15 @@ A modern full-stack web application built to streamline appointment scheduling, 
 # 🧑‍💻 Tech Stack
 
 ## Frontend
-- HTML5
-- CSS3
-- JavaScript
+- TypeScript
 - React.js
-- Inertia.js
 - Tailwind CSS
+- Vite
 
 ## Backend
 - PHP
 - Laravel Framework
+- Inertia.js (React + TypeScript)
 
 ## Database
 - MySQL
@@ -57,20 +56,17 @@ A modern full-stack web application built to streamline appointment scheduling, 
 - Vite
 - Git & GitHub
 - Composer
-- npm
+- Bun
 
 ---
 
 # 📁 Project Structure
 
 ```bash
-appointment-management-system/
+appointmentmanagementsystem/
 │
-├── backend/                 # Laravel Backend
-├── amm-fe/                  # Frontend Application
-├── hotel-booking-site-UI/   # UI Components / Templates
-├── database/                # Database Migrations & Seeders
-├── public/                  # Public Assets
+├── backend/                 # Laravel Backend (Inertia.js + React + TypeScript)
+├── amm-fe/                  # Standalone Frontend Application (React + TypeScript + Vite)
 ├── .gitignore
 └── README.md
 ```
@@ -96,18 +92,20 @@ cd appointment-management-system
 ```bash
 cd backend
 composer install
+bun install
 cp .env.example .env
 php artisan key:generate
 php artisan migrate
 php artisan serve
+bun run dev
 ```
 
 ## Frontend Setup
 
 ```bash
 cd amm-fe
-npm install
-npm run dev
+bun install
+bun run dev
 ```
 
 ---
